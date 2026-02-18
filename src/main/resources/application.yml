@@ -6,9 +6,9 @@ spring:
     name: courses-api
 
   datasource:
-    url: jdbc:postgresql://neondb_owner:npg_e9ZKjpwfEVD6@ep-spring-credit-acoasqru-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
-    username: neondb_owner
-    password: npg_e9ZKjpwfEVD6
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASS}
     driver-class-name: org.postgresql.Driver
 
   jpa:
