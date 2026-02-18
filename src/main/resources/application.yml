@@ -1,27 +1,26 @@
 server:
-    port: 8080
+  port: 8080
 
 spring:
-    application:
-        name: courses-api
+  application:
+    name: courses-api
 
-    datasource:
-        url: jdbc:postgresql://localhost:5432/courses_db
-        username: courses_user
-        password: courses_pass
-        driver-class-name: org.postgresql.Driver
+  datasource:
+    url: jdbc:postgresql://neondb_owner:npg_e9ZKjpwfEVD6@ep-spring-credit-acoasqru-pooler.sa-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+    username: neondb_owner
+    password: npg_e9ZKjpwfEVD6
+    driver-class-name: org.postgresql.Driver
 
-    jpa:
-        hibernate:
-            ddl-auto: update
-        show-sql: true
-        properties:
-            hibernate:
-                format_sql: true
-                dialect: org.hibernate.dialect.PostgreSQLDialect
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
 
-# CORS - permitir requests desde el frontend en Codespaces
 app:
-    cors:
-        allowed-origins: "*"
-        allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  cors:
+    allowed-origins: "*"
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
