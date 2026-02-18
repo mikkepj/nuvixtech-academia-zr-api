@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /workspace log --oneline -10)",
+      "Bash(find:*)",
+      "WebSearch",
+      "WebFetch(domain:context7.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(claude mcp add:*)"
+    ]
+  }
+}

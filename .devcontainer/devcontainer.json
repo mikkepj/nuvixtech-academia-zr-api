@@ -3,17 +3,21 @@
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspace",
-
   "features": {
     "ghcr.io/devcontainers/features/java:1": {
       "version": "21",
       "installMaven": "true",
       "installGradle": "false"
     },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "20"
+    },
     "ghcr.io/devcontainers/features/git:1": {}
   },
-
-  "forwardPorts": [8080, 5432],
+  "forwardPorts": [
+    8080,
+    5432
+  ],
   "portsAttributes": {
     "8080": {
       "label": "Spring Boot API",
@@ -24,9 +28,7 @@
       "onAutoForward": "silent"
     }
   },
-
-  "postCreateCommand": "if [ -f pom.xml ]; then mvn dependency:resolve; fi",
-
+  "postCreateCommand": "sudo npm install -g @anthropic-ai/claude-code && if [ -f pom.xml ]; then mvn dependency:resolve; fi",
   "customizations": {
     "vscode": {
       "settings": {
@@ -58,6 +60,5 @@
       ]
     }
   },
-
   "remoteUser": "vscode"
 }
