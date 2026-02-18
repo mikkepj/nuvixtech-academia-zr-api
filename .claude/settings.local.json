@@ -6,7 +6,21 @@
       "WebSearch",
       "WebFetch(domain:context7.com)",
       "WebFetch(domain:github.com)",
-      "Bash(claude mcp add:*)"
+      "Bash(claude mcp add:*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "Bash(./mvnw compile:*)",
+      "Bash(./mvnw test:*)",
+      "Bash(jar tf:*)",
+      "Bash(xargs -I{} sh -c \"echo \"\"=== {} ===\"\"; jar tf {} | grep -i \"\"WebMvcTest\\\\|webmvc\"\" | head -5\")",
+      "Bash(./mvnw test-compile:*)",
+      "Bash(env:*)",
+      "Bash(cat:*)",
+      "Bash(printenv:*)"
     ]
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "context7"
+  ]
 }
