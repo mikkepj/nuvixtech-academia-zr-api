@@ -1,0 +1,63 @@
+{
+  "name": "NuvixTech Courses API",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspace",
+
+  "features": {
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "21",
+      "installMaven": "true",
+      "installGradle": "false"
+    },
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+
+  "forwardPorts": [8080, 5432],
+  "portsAttributes": {
+    "8080": {
+      "label": "Spring Boot API",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "silent"
+    }
+  },
+
+  "postCreateCommand": "if [ -f pom.xml ]; then mvn dependency:resolve; fi",
+
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "java.configuration.updateBuildConfiguration": "automatic",
+        "java.compile.nullAnalysis.mode": "automatic",
+        "java.autobuild.enabled": true,
+        "editor.formatOnSave": true,
+        "editor.tabSize": 4,
+        "spring-boot.ls.java.home": "/usr/local/sdkman/candidates/java/current",
+        "database.connections": [
+          {
+            "name": "Courses DB",
+            "driver": "postgresql",
+            "host": "localhost",
+            "port": 5432,
+            "database": "courses_db",
+            "username": "courses_user"
+          }
+        ]
+      },
+      "extensions": [
+        "vscjava.vscode-java-pack",
+        "vmware.vscode-spring-boot",
+        "vscjava.vscode-spring-initializr",
+        "vscjava.vscode-spring-boot-dashboard",
+        "ckolkman.vscode-postgres",
+        "redhat.vscode-yaml",
+        "GabrielBB.vscode-lombok"
+      ]
+    }
+  },
+
+  "remoteUser": "vscode"
+}
