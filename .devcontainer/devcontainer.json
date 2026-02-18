@@ -28,7 +28,7 @@
       "onAutoForward": "silent"
     }
   },
-  "postCreateCommand": "sudo npm install -g @anthropic-ai/claude-code && if [ -f pom.xml ]; then mvn dependency:resolve; fi",
+  "postCreateCommand": "npm install -g @anthropic-ai/claude-code && if [ -f pom.xml ]; then mvn dependency:resolve; fi",
   "customizations": {
     "vscode": {
       "settings": {
