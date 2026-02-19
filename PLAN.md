@@ -48,15 +48,49 @@
 
 ---
 
-## Sprint 2 — Validaciones ⬜
+## Sprint 2 — Validaciones ✅
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| 2.1 | Agregar `spring-boot-starter-validation` al `pom.xml` | ⬜ |
-| 2.2 | Anotar `CourseRequest` con `@NotBlank`, `@NotNull`, `@Positive` | ⬜ |
-| 2.3 | Agregar `@Valid` en `create` y `update` del controller | ⬜ |
-| 2.4 | Manejar `MethodArgumentNotValidException` en `GlobalExceptionHandler` (400) | ⬜ |
-| 2.5 | Tests de validaciones en `CourseControllerTest` | ⬜ |
+| 2.1 | Agregar `spring-boot-starter-validation` al `pom.xml` | ✅ |
+| 2.2 | Anotar `CourseRequest` con `@NotBlank`, `@NotNull`, `@Positive`, `@Size` | ✅ |
+| 2.3 | Agregar `@Valid` en `create` y `update` del controller | ✅ |
+| 2.4 | Manejar `MethodArgumentNotValidException` en `GlobalExceptionHandler` (400) | ✅ |
+| 2.5 | Tests de validaciones en `CourseControllerTest` (7 tests nuevos) | ✅ |
+
+### Reglas de validación aplicadas
+
+| Campo | Anotaciones | Mensaje |
+|-------|-------------|---------|
+| `code` | `@NotBlank`, `@Size(max=20)` | "El código es obligatorio" / "...no puede exceder 20 caracteres" |
+| `name` | `@NotBlank` | "El nombre es obligatorio" |
+| `description` | _(sin validación — opcional)_ | — |
+| `duration` | `@NotNull`, `@Positive` | "La duración es obligatoria" / "...debe ser un número positivo" |
+| `type` | `@NotNull` | "El tipo es obligatorio" |
+| `price` | `@NotNull`, `@Positive` | "El precio es obligatorio" / "...debe ser un número positivo" |
+
+### Formato de respuesta de error de validación (400)
+
+```json
+{
+  "status": 400,
+  "message": "Error de validación",
+  "errors": {
+    "code": "El código es obligatorio",
+    "name": "El nombre es obligatorio",
+    "duration": "La duración es obligatoria",
+    "type": "El tipo es obligatorio",
+    "price": "El precio es obligatorio"
+  },
+  "timestamp": "2026-02-19T02:12:00"
+}
+```
+
+### Notas técnicas Sprint 2
+
+- `ErrorResponse` ahora incluye campo `Map<String, String> errors` para errores por campo
+- `@Valid` intercepta antes de llegar al servicio — el servicio no se invoca si hay errores
+- `description` es el único campo opcional (la columna `TEXT` en BD acepta `null`)
 
 ---
 

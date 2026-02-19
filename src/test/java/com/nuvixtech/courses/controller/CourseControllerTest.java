@@ -55,6 +55,8 @@ class CourseControllerTest {
         return request;
     }
 
+    // ── Sprint 1 — CRUD Tests ──────────────────────────────────────
+
     @Test
     void shouldReturn200WithAllCourses() throws Exception {
         given(courseService.findAll()).willReturn(List.of(buildResponse(1L), buildResponse(2L)));
@@ -134,5 +136,93 @@ class CourseControllerTest {
 
         mockMvc.perform(delete("/api/courses/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    // ── Sprint 2 — Validation Tests ────────────────────────────────
+
+    @Test
+    void shouldReturn400WhenCreatingWithEmptyBody() throws Exception {
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").value("Error de validación"))
+                .andExpect(jsonPath("$.errors").isMap())
+                .andExpect(jsonPath("$.errors.code").value("El código es obligatorio"))
+                .andExpect(jsonPath("$.errors.name").value("El nombre es obligatorio"))
+                .andExpect(jsonPath("$.errors.duration").value("La duración es obligatoria"))
+                .andExpect(jsonPath("$.errors.type").value("El tipo es obligatorio"))
+                .andExpect(jsonPath("$.errors.price").value("El precio es obligatorio"));
+    }
+
+    @Test
+    void shouldReturn400WhenCreatingWithBlankCode() throws Exception {
+        CourseRequest request = buildRequest();
+        request.setCode("   ");
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.code").value("El código es obligatorio"));
+    }
+
+    @Test
+    void shouldReturn400WhenCodeExceeds20Characters() throws Exception {
+        CourseRequest request = buildRequest();
+        request.setCode("A".repeat(21));
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.code").value("El código no puede exceder 20 caracteres"));
+    }
+
+    @Test
+    void shouldReturn400WhenDurationIsNegative() throws Exception {
+        CourseRequest request = buildRequest();
+        request.setDuration(-5);
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.duration").value("La duración debe ser un número positivo"));
+    }
+
+    @Test
+    void shouldReturn400WhenPriceIsZero() throws Exception {
+        CourseRequest request = buildRequest();
+        request.setPrice(BigDecimal.ZERO);
+
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.errors.price").value("El precio debe ser un número positivo"));
+    }
+
+    @Test
+    void shouldReturn400WhenUpdatingWithInvalidData() throws Exception {
+        CourseRequest request = new CourseRequest();
+
+        mockMvc.perform(put("/api/courses/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.errors").isMap());
+    }
+
+    @Test
+    void shouldNotCallServiceWhenValidationFails() throws Exception {
+        mockMvc.perform(post("/api/courses")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
+
+        then(courseService).shouldHaveNoInteractions();
     }
 }

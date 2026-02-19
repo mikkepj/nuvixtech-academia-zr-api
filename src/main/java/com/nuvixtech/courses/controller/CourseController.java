@@ -3,6 +3,7 @@ package com.nuvixtech.courses.controller;
 import com.nuvixtech.courses.dto.CourseRequest;
 import com.nuvixtech.courses.dto.CourseResponse;
 import com.nuvixtech.courses.service.CourseService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,12 +29,12 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<CourseResponse> create(@RequestBody CourseRequest request) {
+    public ResponseEntity<CourseResponse> create(@Valid @RequestBody CourseRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(courseService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<CourseResponse> update(@PathVariable Long id, @RequestBody CourseRequest request) {
+    public ResponseEntity<CourseResponse> update(@PathVariable Long id, @Valid @RequestBody CourseRequest request) {
         return ResponseEntity.ok(courseService.update(id, request));
     }
 
