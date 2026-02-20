@@ -22,5 +22,7 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "context7"
-  ]
+  ],
+  "spinnerTipsEnabled": false,
+  "outputStyle": "default"
 }

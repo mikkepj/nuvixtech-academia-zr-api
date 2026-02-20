@@ -94,15 +94,45 @@
 
 ---
 
-## Sprint 3 — Filtros y Paginación ⬜
+## Sprint 3 — Filtros y Paginación ✅
 
 | # | Tarea | Estado |
 |---|-------|--------|
-| 3.1 | Paginación con `Pageable` en `GET /api/courses` | ⬜ |
-| 3.2 | Filtro por tipo — `GET /api/courses?type=ONLINE` | ⬜ |
-| 3.3 | Búsqueda por nombre — `GET /api/courses?name=java` | ⬜ |
-| 3.4 | Respuesta paginada con `Page<CourseResponse>` | ⬜ |
-| 3.5 | Tests de filtros y paginación | ⬜ |
+| 3.1 | Paginación con `Pageable` en `GET /api/courses` | ✅ |
+| 3.2 | Filtro por tipo — `GET /api/courses?type=ONLINE` | ✅ |
+| 3.3 | Búsqueda por nombre — `GET /api/courses?name=java` | ✅ |
+| 3.4 | Respuesta paginada con `PagedResponse<CourseResponse>` | ✅ |
+| 3.5 | Tests de filtros y paginación (45 tests totales) | ✅ |
+
+### Endpoints actualizados
+
+| Método | Ruta | Query params | Respuesta |
+|--------|------|-------------|-----------|
+| GET | `/api/courses` | `type`, `name`, `page`, `size`, `sort` | 200 — `PagedResponse` |
+| GET | `/api/courses?type=ONLINE` | — | 200 — filtrado por tipo |
+| GET | `/api/courses?name=java` | — | 200 — búsqueda por nombre (case-insensitive) |
+| GET | `/api/courses?type=PRESENCIAL&name=java` | — | 200 — combinación de filtros |
+
+### Formato de respuesta paginada
+
+```json
+{
+  "content": [...],
+  "page": 0,
+  "size": 10,
+  "totalElements": 25,
+  "totalPages": 3,
+  "last": false
+}
+```
+
+### Notas técnicas Sprint 3
+
+- `CourseRepository` extiende ahora `JpaSpecificationExecutor<Course>` (para futuras queries complejas)
+- `findByType`, `findByNameContainingIgnoreCase` y `findByTypeAndNameContainingIgnoreCase` reciben `Pageable`
+- `PagedResponse<T>` es un DTO genérico con factory method `PagedResponse.from(Page<T>)`
+- El controller expone `page` (default 0), `size` (default 10), `sort` (default "id")
+- Filtros opcionales: si ambos son `null`, devuelve todos los cursos paginados
 
 ---
 

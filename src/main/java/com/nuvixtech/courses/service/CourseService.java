@@ -2,14 +2,16 @@ package com.nuvixtech.courses.service;
 
 import com.nuvixtech.courses.dto.CourseRequest;
 import com.nuvixtech.courses.dto.CourseResponse;
+import com.nuvixtech.courses.dto.PagedResponse;
 import com.nuvixtech.courses.exception.CourseNotFoundException;
 import com.nuvixtech.courses.model.Course;
+import com.nuvixtech.courses.model.CourseType;
 import com.nuvixtech.courses.repository.CourseRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -19,10 +21,20 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     @Transactional(readOnly = true)
-    public List<CourseResponse> findAll() {
-        return courseRepository.findAll().stream()
-                .map(this::toResponse)
-                .toList();
+    public PagedResponse<CourseResponse> findAll(CourseType type, String name, Pageable pageable) {
+        Page<Course> page;
+
+        if (type != null && name != null && !name.isBlank()) {
+            page = courseRepository.findByTypeAndNameContainingIgnoreCase(type, name, pageable);
+        } else if (type != null) {
+            page = courseRepository.findByType(type, pageable);
+        } else if (name != null && !name.isBlank()) {
+            page = courseRepository.findByNameContainingIgnoreCase(name, pageable);
+        } else {
+            page = courseRepository.findAll(pageable);
+        }
+
+        return PagedResponse.from(page.map(this::toResponse));
     }
 
     @Transactional(readOnly = true)

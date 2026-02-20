@@ -5,6 +5,8 @@ import com.nuvixtech.courses.model.CourseType;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,15 +52,15 @@ class CourseRepositoryTest {
 
     @Test
     void shouldFindCoursesByType() {
-        List<Course> online = courseRepository.findByType(CourseType.ONLINE);
-        assertThat(online).isNotEmpty();
-        assertThat(online).allMatch(c -> c.getType() == CourseType.ONLINE);
+        Page<Course> online = courseRepository.findByType(CourseType.ONLINE, PageRequest.of(0, 20));
+        assertThat(online.getContent()).isNotEmpty();
+        assertThat(online.getContent()).allMatch(c -> c.getType() == CourseType.ONLINE);
     }
 
     @Test
     void shouldFindCoursesByNameContainingIgnoreCase() {
-        List<Course> results = courseRepository.findByNameContainingIgnoreCase("java");
-        assertThat(results).hasSize(2);
+        Page<Course> results = courseRepository.findByNameContainingIgnoreCase("java", PageRequest.of(0, 20));
+        assertThat(results.getContent()).hasSize(2);
     }
 
     @Test

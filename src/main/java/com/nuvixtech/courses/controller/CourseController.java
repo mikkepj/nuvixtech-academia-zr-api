@@ -2,14 +2,16 @@ package com.nuvixtech.courses.controller;
 
 import com.nuvixtech.courses.dto.CourseRequest;
 import com.nuvixtech.courses.dto.CourseResponse;
+import com.nuvixtech.courses.dto.PagedResponse;
+import com.nuvixtech.courses.model.CourseType;
 import com.nuvixtech.courses.service.CourseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/courses")
@@ -19,8 +21,15 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping
-    public ResponseEntity<List<CourseResponse>> findAll() {
-        return ResponseEntity.ok(courseService.findAll());
+    public ResponseEntity<PagedResponse<CourseResponse>> findAll(
+            @RequestParam(required = false) CourseType type,
+            @RequestParam(required = false) String name,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sort) {
+
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(sort).ascending());
+        return ResponseEntity.ok(courseService.findAll(type, name, pageable));
     }
 
     @GetMapping("/{id}")

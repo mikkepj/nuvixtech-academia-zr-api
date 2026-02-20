@@ -3,12 +3,14 @@ package com.nuvixtech.courses.controller;
 import tools.jackson.databind.ObjectMapper;
 import com.nuvixtech.courses.dto.CourseRequest;
 import com.nuvixtech.courses.dto.CourseResponse;
+import com.nuvixtech.courses.dto.PagedResponse;
 import com.nuvixtech.courses.exception.CourseNotFoundException;
 import com.nuvixtech.courses.model.CourseType;
 import com.nuvixtech.courses.service.CourseService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -44,6 +47,17 @@ class CourseControllerTest {
                 .build();
     }
 
+    private PagedResponse<CourseResponse> buildPage(CourseResponse... items) {
+        return PagedResponse.<CourseResponse>builder()
+                .content(List.of(items))
+                .page(0)
+                .size(10)
+                .totalElements(items.length)
+                .totalPages(1)
+                .last(true)
+                .build();
+    }
+
     private CourseRequest buildRequest() {
         CourseRequest request = new CourseRequest();
         request.setCode("JAVA-101");
@@ -59,12 +73,14 @@ class CourseControllerTest {
 
     @Test
     void shouldReturn200WithAllCourses() throws Exception {
-        given(courseService.findAll()).willReturn(List.of(buildResponse(1L), buildResponse(2L)));
+        given(courseService.findAll(isNull(), isNull(), any(Pageable.class)))
+                .willReturn(buildPage(buildResponse(1L), buildResponse(2L)));
 
         mockMvc.perform(get("/api/courses"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[0].code").value("JAVA-101"));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[0].code").value("JAVA-101"))
+                .andExpect(jsonPath("$.totalElements").value(2));
     }
 
     @Test
@@ -224,5 +240,73 @@ class CourseControllerTest {
                 .andExpect(status().isBadRequest());
 
         then(courseService).shouldHaveNoInteractions();
+    }
+
+    // ── Sprint 3 — Filtros y Paginación Tests ──────────────────────
+
+    @Test
+    void shouldReturn200WithPaginationMetadata() throws Exception {
+        given(courseService.findAll(isNull(), isNull(), any(Pageable.class)))
+                .willReturn(buildPage(buildResponse(1L)));
+
+        mockMvc.perform(get("/api/courses").param("page", "0").param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(10))
+                .andExpect(jsonPath("$.totalElements").value(1))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.last").value(true));
+    }
+
+    @Test
+    void shouldFilterByType() throws Exception {
+        given(courseService.findAll(eq(CourseType.ONLINE), isNull(), any(Pageable.class)))
+                .willReturn(buildPage(buildResponse(1L)));
+
+        mockMvc.perform(get("/api/courses").param("type", "ONLINE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+    }
+
+    @Test
+    void shouldFilterByName() throws Exception {
+        given(courseService.findAll(isNull(), eq("java"), any(Pageable.class)))
+                .willReturn(buildPage(buildResponse(1L)));
+
+        mockMvc.perform(get("/api/courses").param("name", "java"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(1));
+    }
+
+    @Test
+    void shouldFilterByTypeAndName() throws Exception {
+        given(courseService.findAll(eq(CourseType.PRESENCIAL), eq("java"), any(Pageable.class)))
+                .willReturn(buildPage(buildResponse(1L)));
+
+        mockMvc.perform(get("/api/courses")
+                        .param("type", "PRESENCIAL")
+                        .param("name", "java"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].type").value("PRESENCIAL"));
+    }
+
+    @Test
+    void shouldReturnEmptyPageWhenNoMatches() throws Exception {
+        PagedResponse<CourseResponse> emptyPage = PagedResponse.<CourseResponse>builder()
+                .content(List.of())
+                .page(0)
+                .size(10)
+                .totalElements(0)
+                .totalPages(0)
+                .last(true)
+                .build();
+
+        given(courseService.findAll(eq(CourseType.ONLINE), isNull(), any(Pageable.class)))
+                .willReturn(emptyPage);
+
+        mockMvc.perform(get("/api/courses").param("type", "ONLINE"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(0))
+                .andExpect(jsonPath("$.totalElements").value(0));
     }
 }
